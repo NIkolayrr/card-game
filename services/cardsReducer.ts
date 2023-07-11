@@ -11,17 +11,16 @@ export const cardsReducer = (state: any, action: any) => {
         rows: action.rows,
       };
     case 'setCurrentCard':
-      const cardsCopy = state.cards;
-      cardsCopy.filter((card: ICardState) => {
-        if (card.id === action.card.id) {
-          card.selected = true;
-        }
-      });
+      const {cards, selectedCards} = state;
+      const updatedCards = cards.map((card: ICardState) =>
+        card.id === action.card.id ? {...card, selected: true} : card,
+      );
+
       return {
         ...state,
-        cards: [...cardsCopy],
+        cards: updatedCards,
         currentCard: action.card.id,
-        selectedCards: (state.selectedCards += 1),
+        selectedCards: selectedCards + 1,
       };
     case 'setGuessedCards': {
       const {cards, ...restState} = state;
@@ -45,24 +44,30 @@ export const cardsReducer = (state: any, action: any) => {
     }
 
     case 'removeSelectedCards': {
-      const cardsCopy = state.cards;
-      cardsCopy.filter((card: ICardState) => (card.selected = false));
+      const {cards} = state;
+      const updatedCards = cards.map((card: ICardState) => ({
+        ...card,
+        selected: false,
+      }));
+
       return {
         ...state,
-        cards: [...cardsCopy],
+        cards: updatedCards,
         currentCard: undefined,
         selectedCards: 0,
       };
     }
     case 'replayGame': {
-      const cardsCopy = state.cards;
-      cardsCopy.filter((card: any) => {
-        (card.guessed = false), (card.selected = false);
-      });
+      const {cards} = state;
+      const updateCards = cards.map((card: ICardState) => ({
+        ...card,
+        guessed: false,
+        selected: false,
+      }));
 
       return {
         ...state,
-        cards: [...randomiseCards(cardsCopy)],
+        cards: randomiseCards(updateCards),
         currentCard: undefined,
         selectedCards: 0,
       };
